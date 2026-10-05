@@ -2,9 +2,21 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [role, setRole] = useState<"collector" | "recycler">("collector");
+  const router = useRouter();
+
+  const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (role === "collector") {
+      router.push("/dashboard");
+    } else {
+      router.push("/recycler");
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -64,6 +76,7 @@ export default function LoginPage() {
             {/* Role selection */}
             <div className="mt-8 space-y-4">
               <button
+                type="button"
                 onClick={() => setRole("collector")}
                 className={`w-full rounded-2xl border-2 p-5 text-left transition ${
                   role === "collector"
@@ -88,6 +101,7 @@ export default function LoginPage() {
               </button>
 
               <button
+                type="button"
                 onClick={() => setRole("recycler")}
                 className={`w-full rounded-2xl border-2 p-5 text-left transition ${
                   role === "recycler"
@@ -112,36 +126,52 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* Contact details */}
-            <div className="mt-8 space-y-4">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-                  Phone number
-                </label>
+            {/* FORM */}
+            <form onSubmit={handleLogin}>
+              {/* Contact details */}
+              <div className="mt-8 space-y-4">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Phone number
+                  </label>
 
-                <input
-                  type="tel"
-                  placeholder="+260 97 000 0000"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3.5 outline-none transition focus:border-green-600 focus:ring-2 focus:ring-green-100"
-                />
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]+"
+                    required
+                    maxLength={12}
+                    placeholder="+260 97 000 0000"
+                    onInput={(event) => {
+                      event.currentTarget.value =
+                        event.currentTarget.value.replace(/\D/g, "");
+                    }}
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3.5 text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-green-600 focus:ring-2 focus:ring-green-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Password
+                  </label>
+
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    placeholder="Enter your password"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3.5 text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-green-600 focus:ring-2 focus:ring-green-100"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
-                  Password
-                </label>
-
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3.5 outline-none transition focus:border-green-600 focus:ring-2 focus:ring-green-100"
-                />
-              </div>
-            </div>
-
-            <button className="mt-6 w-full rounded-xl bg-green-600 py-4 font-semibold text-white transition hover:bg-green-700">
-              Sign in as {role === "collector" ? "Collector" : "Recycler"}
-            </button>
+              <button
+                type="submit"
+                className="mt-6 w-full rounded-xl bg-green-600 py-4 font-semibold text-white transition hover:bg-green-700"
+              >
+                Sign in as {role === "collector" ? "Collector" : "Recycler"}
+              </button>
+            </form>
 
             <p className="mt-6 text-center text-sm text-gray-500">
               Don't have an account?{" "}

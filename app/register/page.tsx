@@ -2,9 +2,17 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [role, setRole] = useState<"collector" | "recycler">("collector");
+  const router = useRouter();
+
+  const handleRegister = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    router.push("/login");
+  };
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -40,6 +48,7 @@ export default function RegisterPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <button
+                type="button"
                 onClick={() => setRole("collector")}
                 className={`rounded-xl border-2 p-4 text-left ${
                   role === "collector"
@@ -54,6 +63,7 @@ export default function RegisterPage() {
               </button>
 
               <button
+                type="button"
                 onClick={() => setRole("recycler")}
                 className={`rounded-xl border-2 p-4 text-left ${
                   role === "recycler"
@@ -69,60 +79,79 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Form */}
-          <div className="mt-6 space-y-4">
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700">
-                Full name
-              </label>
+          {/* FORM */}
+          <form onSubmit={handleRegister}>
+            <div className="mt-6 space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  Full name
+                </label>
 
-              <input
-                type="text"
-                placeholder="Enter your full name"
-                className="w-full rounded-xl border border-gray-300 px-4 py-3.5 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
-              />
+                <input
+                  type="text"
+                  required
+                  minLength={2}
+                  placeholder="Enter your full name"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3.5 text-gray-900 placeholder:text-gray-400 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  Phone number
+                </label>
+
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]+"
+                  required
+                  maxLength={12}
+                  placeholder="+260 97 000 0000"
+                  onInput={(event) => {
+                    event.currentTarget.value =
+                      event.currentTarget.value.replace(/\D/g, "");
+                  }}
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3.5 text-gray-900 placeholder:text-gray-400 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  Location
+                </label>
+
+                <input
+                  type="text"
+                  required
+                  minLength={2}
+                  placeholder="e.g. Lusaka"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3.5 text-gray-900 placeholder:text-gray-400 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  Password
+                </label>
+
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  placeholder="Create a password"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3.5 text-gray-900 placeholder:text-gray-400 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700">
-                Phone number
-              </label>
-
-              <input
-                type="tel"
-                placeholder="+260 97 000 0000"
-                className="w-full rounded-xl border border-gray-300 px-4 py-3.5 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700">
-                Location
-              </label>
-
-              <input
-                type="text"
-                placeholder="e.g. Lusaka"
-                className="w-full rounded-xl border border-gray-300 px-4 py-3.5 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700">
-                Password
-              </label>
-
-              <input
-                type="password"
-                placeholder="Create a password"
-                className="w-full rounded-xl border border-gray-300 px-4 py-3.5 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
-              />
-            </div>
-          </div>
-
-          <button className="mt-6 w-full rounded-xl bg-green-600 py-4 font-semibold text-white hover:bg-green-700">
-            Create {role === "collector" ? "Collector" : "Recycler"} Account
-          </button>
+            <button
+              type="submit"
+              className="mt-6 w-full rounded-xl bg-green-600 py-4 font-semibold text-white hover:bg-green-700"
+            >
+              Create {role === "collector" ? "Collector" : "Recycler"} Account
+            </button>
+          </form>
 
           <p className="mt-6 text-center text-sm text-gray-500">
             Already have an account?{" "}

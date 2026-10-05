@@ -13,6 +13,49 @@ export default function NewCollectionPage() {
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    const newCollection = {
+      id: Date.now(),
+      collector: "Phineas Mwale",
+      material,
+      declaredWeight: Number(weight),
+      date: date
+        ? new Date(`${date}T00:00:00`).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "",
+      location: collectionPoint,
+    };
+
+    const existingCollections = JSON.parse(
+      localStorage.getItem("drop2earn_pending_collections") || "[]"
+    );
+
+    existingCollections.unshift(newCollection);
+
+    localStorage.setItem(
+      "drop2earn_pending_collections",
+      JSON.stringify(existingCollections)
+    );
+
+    if (notes.trim()) {
+      const existingNotes = JSON.parse(
+        localStorage.getItem("drop2earn_collection_notes") || "[]"
+      );
+
+      existingNotes.unshift({
+        collectionId: newCollection.id,
+        notes: notes.trim(),
+      });
+
+      localStorage.setItem(
+        "drop2earn_collection_notes",
+        JSON.stringify(existingNotes)
+      );
+    }
+
     setSubmitted(true);
   }
 
@@ -212,7 +255,7 @@ export default function NewCollectionPage() {
               value={date}
               onChange={(event) => setDate(event.target.value)}
               required
-              className="mt-4 w-full rounded-xl border border-gray-300 bg-white px-4 py-3.5 text-gray-900 outline-none transition focus:border-green-600 focus:ring-2 focus:ring-green-100"
+              className="mt-4 w-full rounded-xl border border-gray-300 bg-white px-4 py-3.5 text-gray-900 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
             />
           </div>
 

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
@@ -13,9 +15,12 @@ export default function Home() {
             </span>
           </div>
 
-          <button className="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700">
+          <Link
+            href="/register"
+            className="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700"
+          >
             Get Started
-          </button>
+          </Link>
         </div>
       </nav>
 
@@ -38,19 +43,25 @@ export default function Home() {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
-            <button className="rounded-lg bg-green-600 px-6 py-3.5 font-semibold text-white shadow-sm hover:bg-green-700">
+            <Link
+              href="/register"
+              className="rounded-lg bg-green-600 px-6 py-3.5 font-semibold text-white shadow-sm hover:bg-green-700"
+            >
               Start collecting
-            </button>
+            </Link>
 
-            <button className="rounded-lg border border-gray-300 px-6 py-3.5 font-semibold text-gray-700 hover:bg-gray-50">
+            <a
+              href="#how-it-works"
+              className="rounded-lg border border-gray-300 px-6 py-3.5 font-semibold text-gray-700 hover:bg-gray-50"
+            >
               Learn how it works
-            </button>
+            </a>
           </div>
         </div>
       </section>
 
       {/* How it works */}
-      <section className="bg-gray-50 px-6 py-20">
+      <section id="how-it-works" className="bg-gray-50 px-6 py-20">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-2xl">
             <p className="font-semibold text-green-600">HOW IT WORKS</p>
