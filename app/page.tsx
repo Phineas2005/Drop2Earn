@@ -10,6 +10,7 @@ export default function Home() {
         links={[
           { href: "#how-it-works", label: "How it works" },
           { href: "#why-drop2earn", label: "Why Drop2Earn" },
+          { href: "#climate-community", label: "Climate & community" },
           { href: "/login", label: "Get Started" },
         ]}
       />
@@ -49,6 +50,91 @@ export default function Home() {
             >
               Learn how it works
             </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Climate and community */}
+      <section id="climate-community" className="overflow-hidden bg-slate-950 px-6 py-20 text-white">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+            <div>
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-300">
+                <span aria-hidden="true" className="text-base">✦</span>
+                Climate &amp; community
+              </div>
+              <h2 className="max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
+                A cleaner community is part of a healthier climate.
+              </h2>
+              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300">
+                Every bottle recovered, every collection verified and every
+                kilogram kept in circulation is a small act of climate care.
+                Drop2Earn helps turn those acts into visible, shared progress
+                for people and the places they call home.
+              </p>
+              <a
+                href="https://www.unep.org/news-and-stories"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-8 inline-flex items-center gap-2 rounded-lg bg-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              >
+                Explore climate stories
+                <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+
+            <div className="relative">
+              <div aria-hidden="true" className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-400/20 blur-3xl" />
+              <div aria-hidden="true" className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-sky-400/15 blur-3xl" />
+              <div className="relative grid gap-4 sm:grid-cols-2">
+                {[
+                  {
+                    eyebrow: "Learn",
+                    title: "Climate news & insight",
+                    text: "Follow reporting and science from trusted global climate organisations.",
+                    href: "https://climate.nasa.gov/news/",
+                    label: "Read climate news",
+                    accent: "bg-sky-400/15 text-sky-300",
+                  },
+                  {
+                    eyebrow: "Act",
+                    title: "Make impact visible",
+                    text: "Choose reuse, recover materials and support the people doing the work.",
+                    href: "#how-it-works",
+                    label: "See how it works",
+                    accent: "bg-emerald-400/15 text-emerald-300",
+                  },
+                  {
+                    eyebrow: "Connect",
+                    title: "Local action matters",
+                    text: "Cleaner streets, stronger livelihoods and healthier communities reinforce each other.",
+                    href: "/login",
+                    label: "Join Drop2Earn",
+                    accent: "bg-amber-400/15 text-amber-300",
+                  },
+                ].map((card) => (
+                  <div
+                    key={card.title}
+                    className="rounded-2xl border border-white/10 bg-white/[0.07] p-5 backdrop-blur-sm sm:last:col-span-2"
+                  >
+                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${card.accent}`}>
+                      {card.eyebrow}
+                    </span>
+                    <h3 className="mt-4 text-lg font-bold">{card.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{card.text}</p>
+                    <a
+                      href={card.href}
+                      target={card.href.startsWith("http") ? "_blank" : undefined}
+                      rel={card.href.startsWith("http") ? "noreferrer" : undefined}
+                      className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-white hover:text-emerald-300"
+                    >
+                      {card.label}
+                      <span aria-hidden="true">→</span>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
