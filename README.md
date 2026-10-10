@@ -10,6 +10,10 @@ statuses, troubleshooting and deployment notes, see the
 [manual source](./docs/Drop2Earn-User-Manual.md) is kept alongside the PDF so
 the documentation can be updated as the product evolves.
 
+The current free public deployment is available at
+[drop2earn-zambia.netlify.app](https://drop2earn-zambia.netlify.app). The
+project is configured with `netlify.toml` and uses Netlify's Next.js runtime.
+
 ## Product workflow
 
 ```text
