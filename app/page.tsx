@@ -55,18 +55,18 @@ export default function Home() {
       </section>
 
       {/* Climate and community */}
-      <section id="climate-community" className="overflow-hidden bg-slate-950 px-6 py-20 text-white">
+      <section id="climate-community" className="overflow-hidden bg-gray-50 px-6 py-20 text-gray-900">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-center">
             <div>
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-300">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
                 <span aria-hidden="true" className="text-base">✦</span>
                 Climate &amp; community
               </div>
               <h2 className="max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
                 A cleaner community is part of a healthier climate.
               </h2>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300">
+              <p className="mt-5 max-w-2xl text-base leading-8 text-gray-600">
                 Every bottle recovered, every collection verified and every
                 kilogram kept in circulation is a small act of climate care.
                 Drop2Earn helps turn those acts into visible, shared progress
@@ -76,7 +76,7 @@ export default function Home() {
                 href="https://www.unep.org/news-and-stories"
                 target="_blank"
                 rel="noreferrer"
-                className="mt-8 inline-flex items-center gap-2 rounded-lg bg-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                className="mt-8 inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-3 font-semibold text-white transition hover:bg-green-700"
               >
                 Explore climate stories
                 <span aria-hidden="true">↗</span>
@@ -84,8 +84,8 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div aria-hidden="true" className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-400/20 blur-3xl" />
-              <div aria-hidden="true" className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-sky-400/15 blur-3xl" />
+              <div aria-hidden="true" className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-green-100 blur-3xl" />
+              <div aria-hidden="true" className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-blue-100 blur-3xl" />
               <div className="relative grid gap-4 sm:grid-cols-2">
                 {[
                   {
@@ -94,7 +94,7 @@ export default function Home() {
                     text: "Follow reporting and science from trusted global climate organisations.",
                     href: "https://climate.nasa.gov/news/",
                     label: "Read climate news",
-                    accent: "bg-sky-400/15 text-sky-300",
+                    accent: "bg-blue-100 text-blue-700",
                   },
                   {
                     eyebrow: "Act",
@@ -102,7 +102,7 @@ export default function Home() {
                     text: "Choose reuse, recover materials and support the people doing the work.",
                     href: "#how-it-works",
                     label: "See how it works",
-                    accent: "bg-emerald-400/15 text-emerald-300",
+                    accent: "bg-green-100 text-green-700",
                   },
                   {
                     eyebrow: "Connect",
@@ -110,23 +110,23 @@ export default function Home() {
                     text: "Cleaner streets, stronger livelihoods and healthier communities reinforce each other.",
                     href: "/login",
                     label: "Join Drop2Earn",
-                    accent: "bg-amber-400/15 text-amber-300",
+                    accent: "bg-yellow-100 text-yellow-800",
                   },
                 ].map((card) => (
                   <div
                     key={card.title}
-                    className="rounded-2xl border border-white/10 bg-white/[0.07] p-5 backdrop-blur-sm sm:last:col-span-2"
+                    className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:last:col-span-2"
                   >
                     <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${card.accent}`}>
                       {card.eyebrow}
                     </span>
-                    <h3 className="mt-4 text-lg font-bold">{card.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">{card.text}</p>
+                    <h3 className="mt-4 text-lg font-bold text-gray-900">{card.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-gray-600">{card.text}</p>
                     <a
                       href={card.href}
                       target={card.href.startsWith("http") ? "_blank" : undefined}
                       rel={card.href.startsWith("http") ? "noreferrer" : undefined}
-                      className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-white hover:text-emerald-300"
+                      className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-green-700 hover:text-green-800"
                     >
                       {card.label}
                       <span aria-hidden="true">→</span>
