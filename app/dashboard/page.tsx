@@ -2,81 +2,92 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { RoleGate } from "@/components/role-gate";
+import { ResponsiveHeader } from "@/components/responsive-header";
 
 type Transaction = {
-  id: number;
-  collector: string;
+  id: string;
   material: string;
   declaredWeight: number;
   verifiedWeight: number;
-  rate: number;
   earnings: number;
   date: string;
   location: string;
   status: string;
+  payoutStatus: string;
 };
 
-const demoTransactions: Transaction[] = [
-  {
-    id: 101,
-    collector: "Phineas Mwale",
-    material: "PET Plastic",
-    declaredWeight: 10,
-    verifiedWeight: 9.6,
-    rate: 5,
-    earnings: 48,
-    date: "04 Oct 2026",
-    location: "Lusaka Central",
-    status: "Verified",
-  },
-  {
-    id: 102,
-    collector: "Phineas Mwale",
-    material: "HDPE Plastic",
-    declaredWeight: 7,
-    verifiedWeight: 6.2,
-    rate: 4,
-    earnings: 24.8,
-    date: "03 Oct 2026",
-    location: "Lusaka Central",
-    status: "Pending",
-  },
-  {
-    id: 103,
-    collector: "Phineas Mwale",
-    material: "PET Plastic",
-    declaredWeight: 9,
-    verifiedWeight: 8.8,
-    rate: 5,
-    earnings: 44,
-    date: "28 Sep 2026",
-    location: "Lusaka Central",
-    status: "Verified",
-  },
-];
-
 export default function DashboardPage() {
-  const [transactions, setTransactions] =
-    useState<Transaction[]>(demoTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [collectorName, setCollectorName] = useState<string>("Collector");
+  const [initials, setInitials] = useState<string>("PM");
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const savedTransactions = localStorage.getItem(
-      "drop2earn_transactions"
-    );
+    async function loadDashboardData() {
+      // 1. Get current logged-in user
+      const { data: { user } } = await supabase.auth.getUser();
 
-    if (!savedTransactions) return;
-
-    try {
-      const parsedTransactions = JSON.parse(
-        savedTransactions
-      ) as Transaction[];
-
-      if (Array.isArray(parsedTransactions)) {
-        setTransactions(parsedTransactions);
+      if (!user) {
+        setLoading(false);
+        return;
       }
-    } catch {
-      console.log("Could not read saved transactions.");
+
+      // 2. Get user's profile details
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.full_name) {
+        const name = profile.full_name;
+        setCollectorName(name.split(" ")[0] || name);
+
+        const nameParts = name.trim().split(" ");
+        if (nameParts.length >= 2) {
+          setInitials(`${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase());
+        } else if (nameParts[0]) {
+          setInitials(nameParts[0].slice(0, 2).toUpperCase());
+        }
+      }
+
+      // 3. Fetch collections for this logged-in user
+      const { data, error } = await supabase
+        .from("collections")
+        .select("*")
+        .eq("collector_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        const formattedTransactions: Transaction[] = data.map((col) => {
+          const formattedDate = new Date(col.created_at).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          });
+
+          return {
+            id: col.id,
+            material: col.material,
+            declaredWeight: Number(col.declared_weight) || 0,
+            verifiedWeight: Number(col.verified_weight) || 0,
+            earnings: Number(col.earnings) || 0,
+            date: formattedDate,
+            location: col.location || "Collection Point",
+            status: col.status === "verified" ? "Verified" : "Pending",
+            payoutStatus: col.payout_status || "pending",
+          };
+        });
+
+        setTransactions(formattedTransactions);
+      }
+
+      setLoading(false);
     }
+
+    loadDashboardData();
   }, []);
 
   const verifiedTransactions = useMemo(() => {
@@ -100,62 +111,17 @@ export default function DashboardPage() {
   }, [verifiedTransactions]);
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <RoleGate allowedRoles={["collector"]}>
+      <main className="min-h-screen bg-gray-50">
       {/* HEADER */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 font-bold text-white">
-              D
-            </div>
-
-            <span className="text-xl font-bold text-gray-900">
-              Drop2Earn
-            </span>
-          </Link>
-
-          {/* NAVIGATION */}
-          <nav className="hidden items-center gap-2 md:flex">
-            <Link
-              href="/dashboard"
-              className="rounded-lg bg-green-50 px-4 py-2 text-sm font-semibold text-green-700"
-            >
-              Dashboard
-            </Link>
-
-            <Link
-              href="/dashboard/collections/new"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
-            >
-              Record Collection
-            </Link>
-
-            <Link
-              href="/verification"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
-            >
-              Verification
-            </Link>
-
-            <Link
-              href="/recycler"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
-            >
-              Recycler
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <span className="hidden text-sm font-medium text-gray-600 sm:block">
-              Collector
-            </span>
-
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 font-bold text-green-700">
-              PM
-            </div>
-          </div>
-        </div>
-      </header>
+      <ResponsiveHeader
+        initials={initials}
+        showLogout
+        links={[
+          { href: "/dashboard", label: "Dashboard", active: true },
+          { href: "/dashboard/collections/new", label: "Record Collection" },
+        ]}
+      />
 
       {/* CONTENT */}
       <div className="mx-auto max-w-7xl px-6 py-10">
@@ -166,7 +132,7 @@ export default function DashboardPage() {
           </p>
 
           <h1 className="mt-2 text-3xl font-bold text-gray-900">
-            Welcome back, Phineas
+            Welcome back, {collectorName}
           </h1>
 
           <p className="mt-2 max-w-2xl text-gray-600">
@@ -213,7 +179,7 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100 text-xl">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100 text-xl font-bold text-green-700">
                 K
               </div>
             </div>
@@ -236,7 +202,7 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100 text-xl">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100 text-xl font-bold text-green-700">
                 ✓
               </div>
             </div>
@@ -301,69 +267,16 @@ export default function DashboardPage() {
 
             {/* TRANSACTION ROWS */}
             <div className="divide-y divide-gray-200">
-              {transactions.map((transaction) => (
-                <div key={transaction.id}>
-                  {/* DESKTOP */}
-                  <div className="hidden grid-cols-12 items-center gap-4 px-6 py-5 md:grid">
-                    <div className="col-span-3 flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-lg">
-                        ♻️
-                      </div>
-
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {transaction.material}
-                        </p>
-
-                        <p className="text-xs text-gray-500">
-                          {transaction.location}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="col-span-2">
-                      <p className="font-semibold text-gray-900">
-                        {transaction.verifiedWeight.toFixed(1)} kg
-                      </p>
-
-                      <p className="text-xs text-gray-500">
-                        Declared {transaction.declaredWeight} kg
-                      </p>
-                    </div>
-
-                    <div className="col-span-2 text-sm text-gray-600">
-                      {transaction.date}
-                    </div>
-
-                    <div className="col-span-2">
-                      {transaction.status === "Verified" ? (
-                        <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                          ✓ Verified
-                        </span>
-                      ) : (
-                        <span className="inline-flex rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
-                          Pending
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="col-span-3 text-right">
-                      {transaction.status === "Verified" ? (
-                        <p className="font-bold text-gray-900">
-                          K{transaction.earnings.toFixed(2)}
-                        </p>
-                      ) : (
-                        <p className="font-medium text-gray-400">
-                          —
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* MOBILE */}
-                  <div className="p-5 md:hidden">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3">
+              {loading ? (
+                <div className="px-6 py-12 text-center text-gray-500">
+                  Loading collections...
+                </div>
+              ) : (
+                transactions.map((transaction) => (
+                  <div key={transaction.id}>
+                    {/* DESKTOP */}
+                    <div className="hidden grid-cols-12 items-center gap-4 px-6 py-5 md:grid">
+                      <div className="col-span-3 flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-lg">
                           ♻️
                         </div>
@@ -374,57 +287,130 @@ export default function DashboardPage() {
                           </p>
 
                           <p className="text-xs text-gray-500">
-                            {transaction.date}
+                            {transaction.location}
                           </p>
                         </div>
                       </div>
 
-                      {transaction.status === "Verified" ? (
-                        <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                          Verified
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
-                          Pending
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="mt-5 grid grid-cols-2 gap-4">
-                      <div className="rounded-xl bg-gray-50 p-4">
-                        <p className="text-xs font-medium text-gray-500">
-                          Verified weight
+                      <div className="col-span-2">
+                        <p className="font-semibold text-gray-900">
+                          {transaction.verifiedWeight > 0 ? `${transaction.verifiedWeight.toFixed(1)} kg` : "—"}
                         </p>
 
-                        <p className="mt-1 font-bold text-gray-900">
-                          {transaction.verifiedWeight.toFixed(1)} kg
+                        <p className="text-xs text-gray-500">
+                          Declared {transaction.declaredWeight} kg
                         </p>
                       </div>
 
-                      <div className="rounded-xl bg-gray-50 p-4">
-                        <p className="text-xs font-medium text-gray-500">
-                          Earnings
-                        </p>
+                      <div className="col-span-2 text-sm text-gray-600">
+                        {transaction.date}
+                      </div>
 
-                        <p className="mt-1 font-bold text-gray-900">
-                          {transaction.status === "Verified"
-                            ? `K${transaction.earnings.toFixed(2)}`
-                            : "—"}
-                        </p>
+                      <div className="col-span-2">
+                        {transaction.status === "Verified" ? (
+                          <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                            ✓ Verified
+                          </span>
+                        ) : (
+                          <span className="inline-flex rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
+                            Pending
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="col-span-3 text-right">
+                        {transaction.status === "Verified" ? (
+                          <div>
+                            <p className="font-bold text-gray-900">
+                              K{transaction.earnings.toFixed(2)}
+                            </p>
+                            <p className="mt-1 text-xs font-medium text-green-700">
+                              {transaction.payoutStatus === "paid"
+                                ? "Paid"
+                                : "Pending payout"}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="font-medium text-gray-400">
+                            —
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* MOBILE */}
+                    <div className="p-5 md:hidden">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-lg">
+                            ♻️
+                          </div>
+
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              {transaction.material}
+                            </p>
+
+                            <p className="text-xs text-gray-500">
+                              {transaction.date}
+                            </p>
+                          </div>
+                        </div>
+
+                        {transaction.status === "Verified" ? (
+                          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                            Verified
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
+                            Pending
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-5 grid grid-cols-2 gap-4">
+                        <div className="rounded-xl bg-gray-50 p-4">
+                          <p className="text-xs font-medium text-gray-500">
+                            Verified weight
+                          </p>
+
+                          <p className="mt-1 font-bold text-gray-900">
+                            {transaction.verifiedWeight > 0 ? `${transaction.verifiedWeight.toFixed(1)} kg` : "—"}
+                          </p>
+                        </div>
+
+                        <div className="rounded-xl bg-gray-50 p-4">
+                          <p className="text-xs font-medium text-gray-500">
+                            Earnings
+                          </p>
+
+                          <p className="mt-1 font-bold text-gray-900">
+                            {transaction.status === "Verified"
+                              ? `K${transaction.earnings.toFixed(2)}`
+                              : "—"}
+                          </p>
+                          {transaction.status === "Verified" && (
+                            <p className="mt-1 text-xs font-medium text-green-700">
+                              {transaction.payoutStatus === "paid"
+                                ? "Paid"
+                                : "Pending payout"}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
 
-              {transactions.length === 0 && (
+              {!loading && transactions.length === 0 && (
                 <div className="px-6 py-12 text-center">
                   <p className="font-semibold text-gray-900">
                     No collections yet
                   </p>
 
                   <p className="mt-1 text-sm text-gray-600">
-                    Your verified collections will appear here.
+                    Your recorded collections will appear here.
                   </p>
                 </div>
               )}
@@ -500,6 +486,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </main>
+      </main>
+    </RoleGate>
   );
 }

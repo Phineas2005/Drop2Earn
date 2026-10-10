@@ -1,36 +1,214 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Drop2Earn
 
-## Getting Started
+Drop2Earn is a Zambia-focused digital platform for the recycling value chain. It connects collectors, collection points, verifiers, administrators and recyclers in one traceable workflow.
 
-First, run the development server:
+## Product workflow
+
+```text
+Collector records material
+  -> Collection point verifies the actual weight
+  -> Earnings are calculated
+  -> Recycler reserves verified material
+  -> Recycler requests pickup
+  -> Admin confirms the physical handoff
+  -> Admin marks the collector payout as paid
+```
+
+The application currently supports:
+
+- Collector registration and collection recording
+- Collection-point assignment and management
+- Verifier and admin collection verification
+- Database-calculated collection earnings
+- Recycler supply discovery and reservations
+- Reservation release and re-reservation
+- Pickup requests and admin handoff completion
+- Payout tracking with a completed-handoff requirement
+- Role-protected pages
+- Responsive desktop and mobile navigation
+
+## Technology
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Supabase Auth, PostgreSQL and Row Level Security
+
+## Requirements
+
+- Node.js with npm
+- A Supabase project
+- A browser
+
+## Local setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create `.env.local` in the project root:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+
+Use the Supabase project URL and the public anon key from **Project Settings → API**. Never place a Supabase service-role key in this application or expose it in the browser.
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The migrations are in [`supabase/migrations`](./supabase/migrations). Run them in Supabase **SQL Editor**, one file at a time, in this order:
 
-## Learn More
+1. `001_collection_points.sql` — collection points and verifier assignment foundation
+2. `002_admin_management.sql` — admin management policies and verifier assignment
+3. `003_recycler_reservations.sql` — recycler reservations and verified supply
+4. `004_recycler_reservation_management.sql` — reservation listing and release
+5. `005_allow_re_reservation.sql` — allows a released collection to be reserved again
+6. `006_pickup_completion.sql` — pickup requests and completed handoffs
+7. `007_payout_tracking.sql` — payout status and admin payout actions
+8. `008_fix_verifier_updates.sql` — corrective verifier update policy
+9. `009_verify_collection_rpc.sql` — secure verification RPC
+10. `010_require_completed_handoff_for_payout.sql` — requires a completed handoff before payout
 
-To learn more about Next.js, take a look at the following resources:
+For each file:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Open Supabase **SQL Editor**.
+2. Select **New query**.
+3. Copy the entire migration file.
+4. Paste it into the query editor.
+5. Click **Run**.
+6. Confirm that it completes without an error before continuing.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If the migrations have already been applied, do not rerun the earlier files unnecessarily. Run only a new migration that has not yet been applied.
 
-## Deploy on Vercel
+## Initial roles and accounts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+New accounts can register as collectors or recyclers. Verifier and admin accounts must be prepared by an existing administrator or directly in Supabase during MVP setup.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Before testing verification:
+
+- Ensure the verifier profile has `role = 'verifier'`.
+- Assign the verifier's `collection_point_id`.
+- Ensure the admin profile has `role = 'admin'`.
+- Ensure the recycler profile has `role = 'recycler'`.
+- Ensure the collector profile has `role = 'collector'`.
+
+The application routes users according to their profile role after login:
+
+- Collector → `/dashboard`
+- Recycler → `/recycler`
+- Verifier → `/verification`
+- Admin → `/verification`
+
+Admins can open `/admin` to manage collection points, verifier assignments, handoffs and payouts.
+
+## End-to-end test checklist
+
+### Collector
+
+1. Register or log in as a collector.
+2. Open **Record Collection**.
+3. Select an active collection point and material.
+4. Submit an estimated weight.
+5. Confirm the collection appears as pending.
+
+### Verifier
+
+1. Log in as a verifier assigned to the collection point.
+2. Open `/verification`.
+3. Open the pending collection.
+4. Enter the measured weight and confirm verification.
+5. Confirm that the collector sees the verified weight and earnings.
+
+### Recycler
+
+1. Log in as a recycler.
+2. Open `/recycler`.
+3. Reserve verified material.
+4. Open **My reservations**.
+5. Request pickup.
+
+### Admin
+
+1. Log in as an admin.
+2. Open `/admin`.
+3. Confirm the pickup request under **Material handoffs**.
+4. Confirm that the reservation becomes `completed`.
+5. Open **Collector payouts**.
+6. Mark the eligible collection as paid.
+7. Confirm that the collector dashboard displays `Paid`.
+
+Payouts are intentionally blocked until a completed material handoff exists.
+
+## Validation commands
+
+Run these before deploying:
+
+```bash
+npm run lint
+npm run build
+```
+
+To test the production build locally:
+
+```bash
+npm run build
+npm run start
+```
+
+## Deployment
+
+The application can be deployed to Vercel:
+
+1. Push the repository to GitHub.
+2. Import the repository into Vercel.
+3. Add these environment variables in the Vercel project settings:
+
+   ```text
+   NEXT_PUBLIC_SUPABASE_URL
+   NEXT_PUBLIC_SUPABASE_ANON_KEY
+   ```
+
+4. Deploy the project.
+5. In Supabase **Authentication → URL Configuration**, set the production site URL to the deployed application URL.
+6. Add the production URL to the allowed redirect URLs if Supabase Auth requires it.
+7. Run the database migrations against the production Supabase project before inviting real users.
+8. Test each role using non-production test accounts.
+
+Do not commit `.env.local` or any secret key to Git. Only the public Supabase URL and anon key belong in the browser environment.
+
+## Important operational notes
+
+- Supabase table grants and RLS policies both affect access.
+- Verifiers can only verify collections at their assigned collection point.
+- Admins can view all collection points.
+- A released reservation can be reserved again.
+- A recycler cannot release a reservation after requesting pickup.
+- Only admins can confirm handoffs and mark payouts as paid.
+- Payouts require a completed handoff.
+
+## Project structure
+
+```text
+app/
+  admin/                         Admin operations
+  dashboard/                     Collector dashboard and collection form
+  login/                         Login
+  recycler/                      Recycler supply and reservations
+  register/                      Account registration
+  verification/                  Collection verification
+components/                      Shared navigation, role and greeting components
+lib/supabase.ts                  Shared browser Supabase client
+supabase/migrations/             Ordered database migrations
+```

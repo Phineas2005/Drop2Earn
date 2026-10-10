@@ -1,67 +1,96 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { RoleGate } from "@/components/role-gate";
+import { ResponsiveHeader } from "@/components/responsive-header";
 
 export default function NewCollectionPage() {
   const [material, setMaterial] = useState("PET Plastic");
   const [weight, setWeight] = useState("");
-  const [collectionPoint, setCollectionPoint] = useState("");
+  const [collectionPointId, setCollectionPointId] = useState("");
+  const [collectionPoints, setCollectionPoints] = useState<
+    { id: string; name: string; location: string }[]
+  >([]);
+  const [loadingPoints, setLoadingPoints] = useState(true);
   const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    queueMicrotask(() => {
+      void loadCollectionPoints();
+    });
+
+    async function loadCollectionPoints() {
+      const { data, error: pointsError } = await supabase
+        .from("collection_points")
+        .select("id, name, location")
+        .eq("is_active", true)
+        .order("name");
+
+      if (pointsError) {
+        setError(pointsError.message);
+      } else {
+        setCollectionPoints(data ?? []);
+      }
+      setLoadingPoints(false);
+    }
+  }, []);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setSubmitting(true);
+    setError(null);
 
-    const newCollection = {
-      id: Date.now(),
-      collector: "Phineas Mwale",
-      material,
-      declaredWeight: Number(weight),
-      date: date
-        ? new Date(`${date}T00:00:00`).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          })
-        : "",
-      location: collectionPoint,
-    };
+    // Get current authenticated user
+    const { data: { user } } = await supabase.auth.getUser();
 
-    const existingCollections = JSON.parse(
-      localStorage.getItem("drop2earn_pending_collections") || "[]"
-    );
-
-    existingCollections.unshift(newCollection);
-
-    localStorage.setItem(
-      "drop2earn_pending_collections",
-      JSON.stringify(existingCollections)
-    );
-
-    if (notes.trim()) {
-      const existingNotes = JSON.parse(
-        localStorage.getItem("drop2earn_collection_notes") || "[]"
-      );
-
-      existingNotes.unshift({
-        collectionId: newCollection.id,
-        notes: notes.trim(),
-      });
-
-      localStorage.setItem(
-        "drop2earn_collection_notes",
-        JSON.stringify(existingNotes)
-      );
+    if (!user) {
+      setError("You must be logged in to record a collection.");
+      setSubmitting(false);
+      return;
     }
 
+    const selectedPoint = collectionPoints.find(
+      (point) => point.id === collectionPointId
+    );
+
+    if (!selectedPoint) {
+      setError("Select a valid collection point.");
+      setSubmitting(false);
+      return;
+    }
+
+    // Insert record into Supabase `collections` table
+    const { error: insertError } = await supabase.from("collections").insert({
+      collector_id: user.id,
+      collection_point_id: selectedPoint.id,
+      material: material,
+      declared_weight: parseFloat(weight),
+      location: selectedPoint.location,
+      notes: notes.trim() || null,
+      status: "pending",
+      created_at: date ? new Date(`${date}T00:00:00`).toISOString() : new Date().toISOString(),
+    });
+
+    if (insertError) {
+      setError(insertError.message);
+      setSubmitting(false);
+      return;
+    }
+
+    setSubmitting(false);
     setSubmitted(true);
   }
 
   if (submitted) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <RoleGate allowedRoles={["collector"]}>
+        <main className="min-h-screen bg-gray-50">
         <div className="mx-auto flex min-h-screen max-w-xl items-center px-6 py-12">
           <div className="w-full rounded-3xl bg-white p-8 text-center shadow-xl sm:p-10">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl font-bold text-green-700">
@@ -108,33 +137,16 @@ export default function NewCollectionPage() {
             </Link>
           </div>
         </div>
-      </main>
+        </main>
+      </RoleGate>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <RoleGate allowedRoles={["collector"]}>
+      <main className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 font-bold text-white">
-              D
-            </div>
-
-            <span className="text-xl font-bold text-gray-900">
-              Drop2Earn
-            </span>
-          </Link>
-
-          <Link
-            href="/dashboard"
-            className="text-sm font-medium text-gray-700 transition hover:text-gray-900"
-          >
-            Cancel
-          </Link>
-        </div>
-      </header>
+      <ResponsiveHeader homeHref="/dashboard" homeLabel="Cancel" showLogout />
 
       {/* Main content */}
       <div className="mx-auto max-w-3xl px-6 py-10">
@@ -154,6 +166,12 @@ export default function NewCollectionPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          {error && (
+            <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600 border border-red-200">
+              {error}
+            </div>
+          )}
+
           {/* Material type */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6">
             <label className="block text-sm font-semibold text-gray-900">
@@ -219,24 +237,22 @@ export default function NewCollectionPage() {
             </p>
 
             <select
-              value={collectionPoint}
-              onChange={(event) => setCollectionPoint(event.target.value)}
+              value={collectionPointId}
+              onChange={(event) => setCollectionPointId(event.target.value)}
               required
+              disabled={loadingPoints || collectionPoints.length === 0}
               className="mt-4 w-full rounded-xl border border-gray-300 bg-white px-4 py-3.5 text-gray-900 outline-none transition focus:border-green-600 focus:ring-2 focus:ring-green-100"
             >
-              <option value="">Select a collection point</option>
-              <option value="Lusaka Central">
-                Drop2Earn Hub — Lusaka Central
+              <option value="">
+                {loadingPoints
+                  ? "Loading collection points..."
+                  : "Select a collection point"}
               </option>
-              <option value="Kalingalinga">
-                Drop2Earn Hub — Kalingalinga
-              </option>
-              <option value="Chawama">
-                Drop2Earn Hub — Chawama
-              </option>
-              <option value="Matero">
-                Drop2Earn Hub — Matero
-              </option>
+              {collectionPoints.map((point) => (
+                <option key={point.id} value={point.id}>
+                  {point.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -302,12 +318,14 @@ export default function NewCollectionPage() {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full rounded-xl bg-green-600 py-4 font-semibold text-white shadow-sm transition hover:bg-green-700"
+            disabled={submitting}
+            className="w-full rounded-xl bg-green-600 py-4 font-semibold text-white shadow-sm transition hover:bg-green-700 disabled:opacity-50"
           >
-            Submit collection
+            {submitting ? "Submitting..." : "Submit collection"}
           </button>
         </form>
       </div>
-    </main>
+      </main>
+    </RoleGate>
   );
 }

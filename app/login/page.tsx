@@ -1,20 +1,65 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const [role, setRole] = useState<"collector" | "recycler">("collector");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [logoutMessage, setLogoutMessage] = useState("");
 
-  const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("loggedOut") === "1") {
+      queueMicrotask(() => {
+        setLogoutMessage(
+          "You have been signed out safely. We look forward to seeing you again."
+        );
+      });
+      window.history.replaceState({}, "", "/login");
+    }
+  }, []);
+
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setLoading(true);
+    setError(null);
 
-    if (role === "collector") {
-      router.push("/dashboard");
-    } else {
-      router.push("/recycler");
+    const email = `${phone.trim()}@drop2earn.app`;
+
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      setError(signInError.message);
+      setLoading(false);
+      return;
+    }
+
+    if (data.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      const userRole = profile?.role || role;
+
+      if (userRole === "recycler") {
+        router.push("/recycler");
+      } else if (userRole === "verifier" || userRole === "admin") {
+        router.push("/verification");
+      } else {
+        router.push("/dashboard");
+      }
     }
   };
 
@@ -35,7 +80,7 @@ export default function LoginPage() {
 
               <div className="mt-24">
                 <p className="text-sm font-semibold uppercase tracking-wider text-green-100">
-                  Zambia's recycling value chain
+                Zambia&apos;s recycling value chain
                 </p>
 
                 <h1 className="mt-4 text-4xl font-bold leading-tight">
@@ -56,11 +101,8 @@ export default function LoginPage() {
 
           {/* Right side */}
           <div className="p-8 sm:p-12">
-            <Link
-              href="/"
-              className="text-sm font-medium text-gray-500 hover:text-gray-900"
-            >
-              ← Back to home
+            <Link href="/" className="text-sm font-medium text-gray-500 hover:text-gray-900">
+              Home
             </Link>
 
             <div className="mt-10">
@@ -72,6 +114,12 @@ export default function LoginPage() {
                 Choose how you want to use the platform.
               </p>
             </div>
+
+            {logoutMessage && (
+              <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+                {logoutMessage}
+              </div>
+            )}
 
             {/* Role selection */}
             <div className="mt-8 space-y-4">
@@ -89,7 +137,7 @@ export default function LoginPage() {
 
                   <div>
                     <h3 className="font-bold text-gray-900">
-                      I'm a Collector
+                      I&apos;m a Collector
                     </h3>
 
                     <p className="mt-1 text-sm leading-6 text-gray-600">
@@ -114,7 +162,7 @@ export default function LoginPage() {
 
                   <div>
                     <h3 className="font-bold text-gray-900">
-                      I'm a Recycler
+                      I&apos;m a Recycler
                     </h3>
 
                     <p className="mt-1 text-sm leading-6 text-gray-600">
@@ -128,6 +176,12 @@ export default function LoginPage() {
 
             {/* FORM */}
             <form onSubmit={handleLogin}>
+              {error && (
+                <div className="mt-4 rounded-xl bg-red-50 p-4 text-sm text-red-600 border border-red-200">
+                  {error}
+                </div>
+              )}
+
               {/* Contact details */}
               <div className="mt-8 space-y-4">
                 <div>
@@ -141,6 +195,8 @@ export default function LoginPage() {
                     pattern="[0-9]+"
                     required
                     maxLength={12}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     placeholder="+260 97 000 0000"
                     onInput={(event) => {
                       event.currentTarget.value =
@@ -155,26 +211,51 @@ export default function LoginPage() {
                     Password
                   </label>
 
-                  <input
-                    type="password"
-                    required
-                    minLength={6}
-                    placeholder="Enter your password"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3.5 text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-green-600 focus:ring-2 focus:ring-green-100"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      minLength={6}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      className="w-full rounded-xl border border-gray-300 px-4 py-3.5 pr-12 text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-green-600 focus:ring-2 focus:ring-green-100"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 text-lg"
+                      aria-label="Toggle password visibility"
+                    >
+                      {showPassword ? (
+                        <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 4.3A10.8 10.8 0 0112 4c5 0 8.5 4 9.8 6a11.7 11.7 0 01-3.1 3.5M6.2 6.2A12.3 12.3 0 002.2 10c1.3 2 4.8 6 9.8 6 1 0 1.9-.2 2.7-.5" />
+                        </svg>
+                      ) : (
+                        <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.2 10s3.5-6 9.8-6 9.8 6 9.8 6-3.5 6-9.8 6-9.8-6-9.8-6z" />
+                          <circle cx="12" cy="10" r="2.5" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="mt-6 w-full rounded-xl bg-green-600 py-4 font-semibold text-white transition hover:bg-green-700"
+                disabled={loading}
+                className="mt-6 w-full rounded-xl bg-green-600 py-4 font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
               >
-                Sign in as {role === "collector" ? "Collector" : "Recycler"}
+                {loading
+                  ? "Signing in..."
+                  : `Sign in as ${role === "collector" ? "Collector" : "Recycler"}`}
               </button>
             </form>
 
             <p className="mt-6 text-center text-sm text-gray-500">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 href="/register"
                 className="font-semibold text-green-600 hover:text-green-700"
