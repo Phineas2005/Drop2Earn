@@ -55,67 +55,74 @@ export default function Home() {
       </section>
 
       {/* Climate and community */}
-      <section id="climate-community" className="overflow-hidden bg-slate-950 px-6 py-20 text-white">
+      <section id="climate-community" className="relative overflow-hidden bg-slate-950 px-6 py-24 text-white">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-40 [background-image:radial-gradient(circle_at_20%_20%,rgba(52,211,153,0.18),transparent_32%),radial-gradient(circle_at_85%_75%,rgba(56,189,248,0.16),transparent_30%)]" />
         <div className="mx-auto max-w-7xl">
-          <div className="grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+          <div className="relative grid gap-12 lg:grid-cols-[1fr_1.05fr] lg:items-center">
             <div>
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-300">
-                <span aria-hidden="true" className="text-base">✦</span>
-                Climate &amp; community
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-sm font-medium text-emerald-200">
+                <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,0.9)]" />
+                Our shared footprint
               </div>
               <h2 className="max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
-                A cleaner community is part of a healthier climate.
+                The future is built from the choices we make today.
               </h2>
               <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300">
-                Every bottle recovered, every collection verified and every
-                kilogram kept in circulation is a small act of climate care.
-                Drop2Earn helps turn those acts into visible, shared progress
-                for people and the places they call home.
+                Recycling is more than waste management. It is climate action
+                you can see, measure and share. Drop2Earn brings people
+                together around the everyday work of keeping materials in
+                circulation and communities thriving.
               </p>
-              <a
-                href="https://www.unep.org/news-and-stories"
-                target="_blank"
-                rel="noreferrer"
-                className="mt-8 inline-flex items-center gap-2 rounded-lg bg-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
-              >
-                Explore climate stories
-                <span aria-hidden="true">↗</span>
-              </a>
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <a href="https://www.unep.org/news-and-stories" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
+                  Follow the movement
+                  <span aria-hidden="true">↗</span>
+                </a>
+                <span className="text-sm text-slate-400">Learn. Act. Pass it on.</span>
+              </div>
             </div>
 
             <div className="relative">
               <div aria-hidden="true" className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-400/20 blur-3xl" />
               <div aria-hidden="true" className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-sky-400/15 blur-3xl" />
-              <div className="relative grid gap-4 sm:grid-cols-2">
+              <div className="relative rounded-3xl border border-white/10 bg-white/[0.06] p-4 shadow-2xl shadow-emerald-950/30 backdrop-blur-sm sm:p-6">
+                <div className="mb-4 flex items-end justify-between border-b border-white/10 pb-4">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">One circular choice</p>
+                    <p className="mt-2 text-2xl font-bold">Three visible wins.</p>
+                  </div>
+                  <span aria-hidden="true" className="text-4xl text-emerald-300">◌</span>
+                </div>
+                <div className="relative grid gap-3 sm:grid-cols-3">
                 {[
                   {
-                    eyebrow: "Learn",
-                    title: "Climate news & insight",
-                    text: "Follow reporting and science from trusted global climate organisations.",
+                    eyebrow: "01",
+                    title: "Cleaner spaces",
+                    text: "Less waste left behind in our communities.",
                     href: "https://climate.nasa.gov/news/",
-                    label: "Read climate news",
+                    label: "See the bigger picture",
                     accent: "bg-sky-400/15 text-sky-300",
                   },
                   {
-                    eyebrow: "Act",
-                    title: "Make impact visible",
-                    text: "Choose reuse, recover materials and support the people doing the work.",
+                    eyebrow: "02",
+                    title: "Stronger livelihoods",
+                    text: "More dignity and visibility for collection work.",
                     href: "#how-it-works",
-                    label: "See how it works",
+                    label: "See the journey",
                     accent: "bg-emerald-400/15 text-emerald-300",
                   },
                   {
-                    eyebrow: "Connect",
-                    title: "Local action matters",
-                    text: "Cleaner streets, stronger livelihoods and healthier communities reinforce each other.",
+                    eyebrow: "03",
+                    title: "A healthier future",
+                    text: "Materials stay useful for longer, not lost to waste.",
                     href: "/login",
-                    label: "Join Drop2Earn",
+                    label: "Make your move",
                     accent: "bg-amber-400/15 text-amber-300",
                   },
                 ].map((card) => (
                   <div
                     key={card.title}
-                    className="rounded-2xl border border-white/10 bg-white/[0.07] p-5 backdrop-blur-sm sm:last:col-span-2"
+                    className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 transition hover:-translate-y-1 hover:border-emerald-300/40 hover:bg-slate-900/80"
                   >
                     <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${card.accent}`}>
                       {card.eyebrow}
@@ -133,6 +140,7 @@ export default function Home() {
                     </a>
                   </div>
                 ))}
+                </div>
               </div>
             </div>
           </div>

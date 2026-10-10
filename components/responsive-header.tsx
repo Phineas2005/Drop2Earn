@@ -46,14 +46,14 @@ export function ResponsiveHeader({
   }
 
   return (
-    <header className="border-b border-gray-200 bg-white">
+    <header className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/85 shadow-sm backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-16 items-center justify-between gap-4">
-          <Link href={homeHref} className="flex shrink-0 items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 font-bold text-white">
+          <Link href={homeHref} className="group flex shrink-0 items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-600 font-bold text-white shadow-sm transition group-hover:rotate-3 group-hover:bg-green-700">
               D
             </span>
-            <span className="text-lg font-bold tracking-tight text-gray-900 sm:text-xl">
+            <span className="hidden text-lg font-bold tracking-tight text-gray-900 transition sm:inline sm:text-xl">
               Drop2Earn
             </span>
           </Link>
