@@ -24,6 +24,7 @@ The application currently supports:
 - Reservation release and re-reservation
 - Pickup requests and admin handoff completion
 - Payout tracking with a completed-handoff requirement
+- Custom Excel exports for admin operations
 - Role-protected pages
 - Responsive desktop and mobile navigation
 
@@ -80,6 +81,7 @@ The migrations are in [`supabase/migrations`](./supabase/migrations). Run them i
 8. `008_fix_verifier_updates.sql` — corrective verifier update policy
 9. `009_verify_collection_rpc.sql` — secure verification RPC
 10. `010_require_completed_handoff_for_payout.sql` — requires a completed handoff before payout
+11. `011_admin_user_management.sql` — secure admin role and verifier assignment management
 
 For each file:
 
@@ -197,6 +199,7 @@ Do not commit `.env.local` or any secret key to Git. Only the public Supabase UR
 - A recycler cannot release a reservation after requesting pickup.
 - Only admins can confirm handoffs and mark payouts as paid.
 - Payouts require a completed handoff.
+- Admin exports can include collection points, user roles, material handoffs and payouts.
 
 ## Project structure
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
+import { BrandedLoader } from "@/components/branded-loader";
 
 type RoleGateProps = {
   allowedRoles: string[];
@@ -84,9 +85,10 @@ export function RoleGate({ allowedRoles, children }: RoleGateProps) {
 
   if (status === "checking") {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-gray-50 px-6">
-        <p className="text-gray-600">Checking your account access...</p>
-      </main>
+      <BrandedLoader
+        message="Preparing your workspace"
+        detail="Securely checking your Drop2Earn access..."
+      />
     );
   }
 

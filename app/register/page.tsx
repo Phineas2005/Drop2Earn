@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandedLoader } from "@/components/branded-loader";
 
 export default function RegisterPage() {
+  const [showWelcome, setShowWelcome] = useState(true);
   const [role, setRole] = useState<"collector" | "recycler">("collector");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -15,6 +18,24 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const hasSeenWelcome = window.localStorage.getItem(
+      "drop2earn-signup-welcome-seen"
+    );
+
+    if (hasSeenWelcome) {
+      queueMicrotask(() => setShowWelcome(false));
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      window.localStorage.setItem("drop2earn-signup-welcome-seen", "true");
+      setShowWelcome(false);
+    }, 4200);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
 
   const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -46,14 +67,26 @@ export default function RegisterPage() {
     router.push("/login");
   };
 
+  if (showWelcome) {
+    return (
+      <BrandedLoader
+        message="Your next chapter starts here"
+        detail="Setting up a cleaner way to connect, collect and earn."
+      />
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="mx-auto flex min-h-screen max-w-xl items-center px-6 py-12">
         <div className="w-full rounded-3xl bg-white p-8 shadow-xl sm:p-10">
 
-          <Link href="/" className="text-sm font-medium text-gray-500 hover:text-gray-900">
-            Home
-          </Link>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link href="/" className="text-sm font-medium text-gray-500 hover:text-gray-900">
+              Home
+            </Link>
+          </div>
 
           <div className="mt-8">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-600 text-xl font-bold text-white">
@@ -124,6 +157,7 @@ export default function RegisterPage() {
 
                 <input
                   type="text"
+                  autoComplete="name"
                   required
                   minLength={2}
                   value={fullName}
@@ -142,6 +176,7 @@ export default function RegisterPage() {
                   type="tel"
                   inputMode="numeric"
                   pattern="[0-9]+"
+                  autoComplete="tel"
                   required
                   maxLength={12}
                   value={phone}
@@ -179,6 +214,7 @@ export default function RegisterPage() {
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
                     required
                     minLength={6}
                     value={password}

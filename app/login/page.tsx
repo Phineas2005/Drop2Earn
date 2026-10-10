@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function LoginPage() {
   const [role, setRole] = useState<"collector" | "recycler">("collector");
@@ -101,9 +102,12 @@ export default function LoginPage() {
 
           {/* Right side */}
           <div className="p-8 sm:p-12">
-            <Link href="/" className="text-sm font-medium text-gray-500 hover:text-gray-900">
-              Home
-            </Link>
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <Link href="/" className="text-sm font-medium text-gray-500 hover:text-gray-900">
+                Home
+              </Link>
+            </div>
 
             <div className="mt-10">
               <h2 className="text-3xl font-bold text-gray-900">
@@ -193,6 +197,7 @@ export default function LoginPage() {
                     type="tel"
                     inputMode="numeric"
                     pattern="[0-9]+"
+                    autoComplete="username"
                     required
                     maxLength={12}
                     value={phone}
@@ -214,6 +219,7 @@ export default function LoginPage() {
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
                       required
                       minLength={6}
                       value={password}
