@@ -2,6 +2,14 @@
 
 Drop2Earn is a Zambia-focused digital platform for the recycling value chain. It connects collectors, collection points, verifiers, administrators and recyclers in one traceable workflow.
 
+## User manual
+
+For a full explanation of the platform, role permissions, operating procedures,
+statuses, troubleshooting and deployment notes, see the
+[Drop2Earn User Manual](./docs/Drop2Earn-User-Manual.pdf). The editable
+[manual source](./docs/Drop2Earn-User-Manual.md) is kept alongside the PDF so
+the documentation can be updated as the product evolves.
+
 ## Product workflow
 
 ```text
