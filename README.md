@@ -37,6 +37,7 @@ The application currently supports:
 - Pickup requests and admin handoff completion
 - Payout tracking with a completed-handoff requirement
 - Custom Excel exports for admin operations
+- In-app notifications for verification, pickup, handoff and payout updates
 - Role-protected pages
 - Responsive desktop and mobile navigation
 
@@ -94,6 +95,7 @@ The migrations are in [`supabase/migrations`](./supabase/migrations). Run them i
 9. `009_verify_collection_rpc.sql` — secure verification RPC
 10. `010_require_completed_handoff_for_payout.sql` — requires a completed handoff before payout
 11. `011_admin_user_management.sql` — secure admin role and verifier assignment management
+12. `012_notifications.sql` — notification centre and workflow transition alerts
 
 For each file:
 

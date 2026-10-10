@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationsPanel } from "@/components/notifications-panel";
 
 export type HeaderLink = {
   href: string;
@@ -76,6 +77,7 @@ export function ResponsiveHeader({
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            {showLogout && <NotificationsPanel />}
             {initials && (
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700">
                 {initials}
