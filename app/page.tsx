@@ -296,7 +296,18 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-gray-100 px-6 py-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 Drop2Earn</p>
+          <p>
+            © 2026 Drop2Earn · Developed by{" "}
+            <a
+              href="https://zm.linkedin.com/in/phineas-mwale-6b7315258"
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-green-700 hover:underline"
+            >
+              Chisale
+            </a>{" "}
+            and <span className="font-semibold text-green-700">Mulambo</span>
+          </p>
           <p>Digital infrastructure for Zambia&apos;s recycling value chain.</p>
         </div>
       </footer>

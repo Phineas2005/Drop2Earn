@@ -42,7 +42,14 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
 
-    const email = `${phone.trim()}@drop2earn.app`;
+    const normalizedPhone = phone.trim();
+    if (!/^\d{10}$/.test(normalizedPhone)) {
+      setError("Enter a valid Zambian phone number using exactly 10 digits.");
+      setLoading(false);
+      return;
+    }
+
+    const email = `${normalizedPhone}@drop2earn.app`;
 
     const { error: signUpError } = await supabase.auth.signUp({
       email,
@@ -50,7 +57,7 @@ export default function RegisterPage() {
       options: {
         data: {
           full_name: fullName,
-          phone: phone,
+          phone: normalizedPhone,
           role: role,
           location: location,
         },
@@ -175,17 +182,14 @@ export default function RegisterPage() {
                 <input
                   type="tel"
                   inputMode="numeric"
-                  pattern="[0-9]+"
+                  pattern="[0-9]{10}"
                   autoComplete="tel"
                   required
-                  maxLength={12}
+                  minLength={10}
+                  maxLength={10}
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+260 97 000 0000"
-                  onInput={(event) => {
-                    event.currentTarget.value =
-                      event.currentTarget.value.replace(/\D/g, "");
-                  }}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                  placeholder="097 000 0000"
                   className="w-full rounded-xl border border-gray-300 px-4 py-3.5 text-gray-900 placeholder:text-gray-400 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
                 />
               </div>

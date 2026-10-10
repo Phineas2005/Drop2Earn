@@ -32,7 +32,14 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const email = `${phone.trim()}@drop2earn.app`;
+    const normalizedPhone = phone.trim();
+    if (!/^\d{10}$/.test(normalizedPhone)) {
+      setError("Enter your 10-digit Zambian phone number.");
+      setLoading(false);
+      return;
+    }
+
+    const email = `${normalizedPhone}@drop2earn.app`;
 
     const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email,
@@ -196,17 +203,14 @@ export default function LoginPage() {
                   <input
                     type="tel"
                     inputMode="numeric"
-                    pattern="[0-9]+"
+                    pattern="[0-9]{10}"
                     autoComplete="username"
                     required
-                    maxLength={12}
+                    minLength={10}
+                    maxLength={10}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+260 97 000 0000"
-                    onInput={(event) => {
-                      event.currentTarget.value =
-                        event.currentTarget.value.replace(/\D/g, "");
-                    }}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    placeholder="097 000 0000"
                     className="w-full rounded-xl border border-gray-300 px-4 py-3.5 text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-green-600 focus:ring-2 focus:ring-green-100"
                   />
                 </div>

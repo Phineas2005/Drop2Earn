@@ -55,7 +55,7 @@ export function NotificationsPanel() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="relative rounded-lg p-2 text-gray-600 transition hover:bg-gray-50 hover:text-gray-900"
+        className="relative rounded-lg p-2 text-gray-600 transition hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
         aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
         aria-expanded={open}
       >
@@ -70,26 +70,26 @@ export function NotificationsPanel() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-30 mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
-          <div className="border-b border-gray-100 px-4 py-3">
-            <p className="font-semibold text-gray-900">Notifications</p>
-            <p className="mt-0.5 text-xs text-gray-500">Updates about your Drop2Earn activity</p>
+        <div className="absolute right-0 top-full z-30 mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900">
+          <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+            <p className="font-semibold text-gray-900 dark:text-gray-100">Notifications</p>
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Updates about your Drop2Earn activity</p>
           </div>
           {loading ? (
-            <p className="px-4 py-6 text-center text-sm text-gray-500">Loading notifications...</p>
+            <p className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">Loading notifications...</p>
           ) : notifications.length === 0 ? (
-            <p className="px-4 py-6 text-center text-sm text-gray-500">You are all caught up.</p>
+            <p className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">You are all caught up.</p>
           ) : (
-            <div className="max-h-96 divide-y divide-gray-100 overflow-y-auto">
+            <div className="max-h-96 divide-y divide-gray-100 overflow-y-auto dark:divide-gray-700">
               {notifications.map((notification) => {
                 const content = (
-                  <div className={`px-4 py-3 text-left transition hover:bg-gray-50 ${notification.read_at ? "" : "bg-green-50/60"}`}>
+                  <div className={`px-4 py-3 text-left transition hover:bg-gray-50 dark:hover:bg-gray-800 ${notification.read_at ? "" : "bg-green-50/60 dark:bg-green-950/40"}`}>
                     <div className="flex items-start gap-2">
                       {!notification.read_at && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-green-600" />}
                       <div>
-                        <p className="text-sm font-semibold text-gray-900">{notification.title}</p>
-                        <p className="mt-1 text-xs leading-5 text-gray-600">{notification.message}</p>
-                        <p className="mt-1 text-[11px] text-gray-400">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{notification.title}</p>
+                        <p className="mt-1 text-xs leading-5 text-gray-600 dark:text-gray-300">{notification.message}</p>
+                        <p className="mt-1 text-[11px] text-gray-400 dark:text-gray-500">
                           {new Date(notification.created_at).toLocaleString("en-GB")}
                         </p>
                       </div>
